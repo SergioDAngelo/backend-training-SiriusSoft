@@ -9,5 +9,5 @@ export interface UserRepository {
   getById: (userId: string) => Promise<UserDTO | null>
   getByEmailOrUsername: (email?: string, username?: string) => Promise<ExtendedUserDTO | null>
   updatePrivacy: (userId: string, isPrivate: boolean) => Promise<void>;
-  // getUser: (userId: string) => Promise<UserDTO | null>;
+
 }

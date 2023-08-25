@@ -6,7 +6,6 @@ import { ForbiddenException, NotFoundException, UnauthorizedAccessException } fr
 import { CursorPagination } from '@types'
 import { UserRepository } from '@domains/user/repository'
 import { FollowRepository } from '@domains/follower/repository'
-import { FollowService } from '@domains/follower/service'
 
 export class PostServiceImpl implements PostService {
   constructor (
@@ -28,12 +27,11 @@ export class PostServiceImpl implements PostService {
   }
 
   async getPost (userId: string, postId: string): Promise<PostDTO> {
-    // TODO: validate that the author has public profile or the user follows the author
     const post = await this.postRepository.getById(postId)
     
     if (post) {
       const author = await this.userRepository.getById(post.authorId)
-      //const authorIsFollowed = await this.followRepository.getFollow(userId,post.authorId)
+
       const authorIsFollowed = await this.followRepository.getFollow(post.authorId, userId);
       if (author?.isPrivate == false) {
         return post
@@ -76,8 +74,6 @@ export class PostServiceImpl implements PostService {
   }
 
   async getLatestPosts (userId: any, options: CursorPagination): Promise<PostDTO[]> {
-    // TODO: filter post search to return posts from authors that the user follows
-
     const posts = await this.postRepository.getAllByDatePaginated(options)
     console.log(posts.length)
 
@@ -106,7 +102,6 @@ export class PostServiceImpl implements PostService {
   }
 
   async getPostsByAuthor (userId: any, authorId: string, options: { limit?: number, before?: string, after?: string }): Promise<PostDTO[] | undefined> {
-    // TODO: throw exception when the author has a private profile and the user doesn't follow them
     
     const author = await this.userRepository.getById(authorId)
     const posts = await this.postRepository.getByAuthorId(authorId, options)
@@ -131,9 +126,9 @@ export class PostServiceImpl implements PostService {
 
   }
 
-  async getLikedPosts (userId: string): Promise<PostDTO[]> {
+  async getPostsLikes (userId: string): Promise<PostDTO[]> {
     const author = await this.userRepository.getById(userId)
-    const likedPosts = await this.postRepository.getLikedPosts(userId)
+    const likedPosts = await this.postRepository.getPostsLikes(userId)
     if (author) {
       if (likedPosts.length > 0) {
         return likedPosts
@@ -145,9 +140,9 @@ export class PostServiceImpl implements PostService {
     }
   }
 
-  async getRetweetedPosts (userId: string): Promise<PostDTO[]> {
+  async getPostsRetweet (userId: string): Promise<PostDTO[]> {
     const author = await this.userRepository.getById(userId)
-    const retweetedPosts = await this.postRepository.getRetweetedPosts(userId)
+    const retweetedPosts = await this.postRepository.getPostsRetweet(userId)
     if (author) {
       if (retweetedPosts.length > 0) {
         return retweetedPosts
@@ -179,80 +174,3 @@ export class PostServiceImpl implements PostService {
     }
   }
 }
-
-
-// import { CreatePostInputDTO, PostDTO } from '../dto'
-// import { PostRepository } from '../repository'
-// import { PostService } from '.'
-// import { validate } from 'class-validator'
-// import { ForbiddenException, NotFoundException } from '@utils'
-// import { CursorPagination } from '@types'
-// import { UserRepository } from '@domains/user/repository'
-
-// export class PostServiceImpl implements PostService {
-//   constructor (private readonly repository: PostRepository,
-//       private readonly userRepository: UserRepository
-//     ) {}
-
-//   async createPost (userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
-//     await validate(data)
-//     return await this.repository.create(userId, data)
-//   }
-
-//   async deletePost (userId: string, postId: string): Promise<void> {
-//     const post = await this.repository.getById(postId)
-//     if (!post) throw new NotFoundException('post')
-//     if (post.authorId !== userId) throw new ForbiddenException()
-//     await this.repository.delete(postId)
-//   }
-
-//   async getPost (userId: string, postId: string): Promise<PostDTO> {
-//     // TODO: validate that the author has public profile or the user follows the author
-//     const post = await this.repository.getById(postId)
-//     if (!post) throw new NotFoundException('post')
-//     return post
-//   }
-
-//   async getLatestPosts(userId: string, options: CursorPagination): Promise<PostDTO[]> {
-//     const user = await this.userRepository.getById(userId);
-//     if (!user) {
-//       throw new NotFoundException('user');
-//     }
-
-//     let posts: PostDTO[];
-
-//     if (user.isPrivate) {
-//       // If the user's profile is private, fetch posts only from users the logged-in user follows
-//       const followedUserIds = user.follows.map(follow => follow.followedId);
-//       posts = await this.repository.getPostsByUserIds(followedUserIds, options);
-//     } else {
-//       // If the user's profile is public, fetch all posts (public and from followed users)
-//       posts = await this.repository.getAllByDatePaginated(options);
-//     }
-
-//     return posts;
-//   }
-
-//   async getPostsByAuthor (userId: any, authorId: string): Promise<PostDTO[]> {
-//     // TODO: throw exception when the author has a private profile and the user doesn't follow them
-//     return await this.repository.getByAuthorId(authorId)
-//   }
-// }
-
-//   // async getPost (userId: string, postId: string): Promise<PostDTO> {
-//   //   // TODO: validate that the author has public profile or the user follows the author
-//   //   const post = await this.repository.getById(postId)
-//   //   const author = post?.authorId
-//   //   const userAuthor = await this.userRepository.getById(author)  
-
-//   //   if (post){
-//   //     if (userAuthor?.isPrivate == false){
-//   //         return post
-//   //     } else if (userAuthor?.isPrivate == true && author == userId ||  ){
-//   //         return post 
-//   //     }
-//   //   }
-
-//   //   // if (!post) throw new NotFoundException('post')
-//   //   // return post
-//   // }
