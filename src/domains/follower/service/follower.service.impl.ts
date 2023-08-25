@@ -6,11 +6,11 @@ import { FollowService } from '@domains/follower/service';
 export class FollowServiceImpl implements FollowService {
     constructor (private readonly repository: FollowRepository) {}
 
-    async createFollow (followerId: string, followedId: string): Promise<FollowDTO> {
+    async followerCreate (followerId: string, followedId: string): Promise<FollowDTO> {
         return await this.repository.create(followerId, followedId)
       }
     
-    async deleteFollow (followerId: string, followedId : string): Promise<void> {
+    async followerDelete (followerId: string, followedId : string): Promise<void> {
         const follow = await this.repository.getFollow(followerId, followedId);
         if (follow) {
           await this.repository.delete(follow.id)

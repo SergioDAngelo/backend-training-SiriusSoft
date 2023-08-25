@@ -1,8 +1,8 @@
 import { FollowDTO } from "../dto"
 
 export interface FollowService {
-  createFollow: (followerId: string, followedId: string) => Promise<FollowDTO>
-  deleteFollow: (followerId: string, followedId: string) => Promise<void>
+  followerCreate: (followerId: string, followedId: string) => Promise<FollowDTO>
+  followerDelete: (followerId: string, followedId: string) => Promise<void>
   getFollow: (followerId: string, followedId: string) => Promise<FollowDTO>
 }
 

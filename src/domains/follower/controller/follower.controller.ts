@@ -15,7 +15,7 @@ followRouter.post('/follow/:user_id', async (req: Request, res: Response) => {
     const followerId = req.params.user_id
     const { userId: followedId } = res.locals.context 
 
-    const follow: FollowDTO = await service.createFollow(followerId, followedId)
+    const follow: FollowDTO = await service.followerCreate(followerId, followedId)
     res.json({ message: 'User followed successfully', follow });
 })
 
@@ -24,7 +24,7 @@ followRouter.post('/unfollow/:user_id', async (req: Request, res: Response) => {
     const followerId = req.params.user_id
     const { userId: followedId } = res.locals.context
 
-    await service.deleteFollow(followerId, followedId)
+    await service.followerDelete(followerId, followedId)
     res.json({ message: 'User unfollowed successfully' });
 })
 
